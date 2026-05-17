@@ -6,6 +6,7 @@ import '../../models/country_config.dart';
 import '../../models/cv_document.dart';
 import '../../models/template_config.dart';
 import '../../services/country_catalog.dart';
+import '../../services/cv_completeness.dart';
 import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/primary_button.dart';
 import '../../state/cv_editor_notifier.dart';
@@ -43,10 +44,29 @@ class _PreviewScreenState extends State<PreviewScreen> {
     final String templateId = _switcherTemplateId ?? doc.templateId;
     final TemplateConfig template = CountryCatalog.templateFor(templateId);
 
+    final double overall = CvCompleteness.overall(doc);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Live preview'),
         actions: <Widget>[
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Center(
+              child: Tooltip(
+                message: 'CV completeness',
+                child: Chip(
+                  visualDensity: VisualDensity.compact,
+                  label: Text('${(overall * 100).round()}%'),
+                  avatar: Icon(
+                    overall >= 0.9
+                        ? Icons.check_circle_outline
+                        : Icons.donut_large_outlined,
+                    size: 16,
+                  ),
+                ),
+              ),
+            ),
+          ),
           IconButton(
             tooltip: 'Edit',
             icon: const Icon(Icons.edit_outlined),

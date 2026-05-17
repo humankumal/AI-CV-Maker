@@ -5,6 +5,7 @@ import '../../../models/work_experience.dart';
 import '../../../services/ai_service.dart';
 import '../../../services/country_catalog.dart';
 import '../../../state/cv_editor_notifier.dart';
+import '../widgets/date_range_field.dart';
 import '../widgets/form_helpers.dart';
 
 class ExperienceSection extends StatelessWidget {
@@ -18,8 +19,27 @@ class ExperienceSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
         const SectionTitle('Work experience'),
-        for (int i = 0; i < items.length; i++)
-          _ExperienceCard(index: i, item: items[i]),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: Text(
+            items.length > 1
+                ? 'Drag the handle to reorder. Most recent first usually works best.'
+                : 'Add your most recent role first.',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ),
+        ReorderableListView.builder(
+          shrinkWrap: true,
+          buildDefaultDragHandles: false,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: items.length,
+          onReorder: (int o, int n) => ed.reorderExperience(o, n),
+          itemBuilder: (BuildContext context, int i) => _ExperienceCard(
+            key: ValueKey<String>(items[i].id),
+            index: i,
+            item: items[i],
+          ),
+        ),
         const SizedBox(height: 4),
         OutlinedButton.icon(
           onPressed: () => ed.addExperience(),
@@ -32,21 +52,33 @@ class ExperienceSection extends StatelessWidget {
 }
 
 class _ExperienceCard extends StatelessWidget {
-  const _ExperienceCard({required this.index, required this.item});
+  const _ExperienceCard({
+    super.key,
+    required this.index,
+    required this.item,
+  });
   final int index;
   final WorkExperience item;
 
   @override
   Widget build(BuildContext context) {
     final CvEditorNotifier ed = context.read<CvEditorNotifier>();
-    final dynamic doc = ed.document!;
+    final String countryCode = ed.document!.countryCode;
     return Card(
+      margin: const EdgeInsets.symmetric(vertical: 6),
       child: Padding(
         padding: const EdgeInsets.all(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             Row(children: <Widget>[
+              ReorderableDragStartListener(
+                index: index,
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 4),
+                  child: Icon(Icons.drag_indicator, size: 20),
+                ),
+              ),
               Expanded(
                 child: Text('Role ${index + 1}',
                     style: Theme.of(context).textTheme.titleSmall),
@@ -74,41 +106,24 @@ class _ExperienceCard extends StatelessWidget {
               onChanged: (String v) =>
                   ed.updateExperience(index, item.copyWith(location: v)),
             ),
-            Row(children: <Widget>[
-              Expanded(
-                child: LabeledTextField(
-                  label: 'Start',
-                  hint: 'MMM YYYY',
-                  value: item.startDate,
-                  onChanged: (String v) =>
-                      ed.updateExperience(index, item.copyWith(startDate: v)),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: LabeledTextField(
-                  label: 'End',
-                  hint: item.current ? 'Present' : 'MMM YYYY',
-                  value: item.current ? '' : item.endDate,
-                  onChanged: (String v) =>
-                      ed.updateExperience(index, item.copyWith(endDate: v)),
-                ),
-              ),
-            ]),
-            SwitchListTile.adaptive(
-              contentPadding: EdgeInsets.zero,
-              value: item.current,
-              onChanged: (bool v) =>
+            const SizedBox(height: 4),
+            DateRangeField(
+              start: item.startDate,
+              end: item.endDate,
+              current: item.current,
+              onStartChanged: (String v) =>
+                  ed.updateExperience(index, item.copyWith(startDate: v)),
+              onEndChanged: (String v) =>
+                  ed.updateExperience(index, item.copyWith(endDate: v)),
+              onCurrentChanged: (bool v) =>
                   ed.updateExperience(index, item.copyWith(current: v)),
-              title: const Text('I currently work here'),
             ),
             const SizedBox(height: 4),
             _BulletsEditor(
               bullets: item.bullets,
-              roleForAi: '${item.jobTitle} at ${item.company}',
               onChanged: (List<String> next) =>
                   ed.updateExperience(index, item.copyWith(bullets: next)),
-              countryCode: doc.countryCode as String,
+              countryCode: countryCode,
             ),
           ],
         ),
@@ -122,13 +137,11 @@ class _BulletsEditor extends StatelessWidget {
     required this.bullets,
     required this.onChanged,
     required this.countryCode,
-    required this.roleForAi,
   });
 
   final List<String> bullets;
   final ValueChanged<List<String>> onChanged;
   final String countryCode;
-  final String roleForAi;
 
   @override
   Widget build(BuildContext context) {

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../models/user_profile.dart';
 import '../../../state/cv_editor_notifier.dart';
+import '../../../utils/validators.dart';
 import '../widgets/form_helpers.dart';
 
 class BasicsSection extends StatelessWidget {
@@ -35,6 +36,7 @@ class BasicsSection extends StatelessWidget {
           value: p.email,
           onChanged: (String v) => update(p.copyWith(email: v)),
           keyboardType: TextInputType.emailAddress,
+          errorText: Validators.email(p.email),
         ),
         LabeledTextField(
           label: 'Phone',

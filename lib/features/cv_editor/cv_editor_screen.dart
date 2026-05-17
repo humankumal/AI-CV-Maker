@@ -3,7 +3,9 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/cv_document.dart';
+import '../../models/template_config.dart';
 import '../../services/country_catalog.dart';
+import '../../services/cv_completeness.dart';
 import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/primary_button.dart';
 import '../../state/cv_editor_notifier.dart';
@@ -44,15 +46,16 @@ class _CvEditorScreenState extends State<CvEditorScreen> {
   }
 
   static const List<_Step> _steps = <_Step>[
-    _Step('Basics', BasicsSection()),
-    _Step('Summary', SummarySection()),
-    _Step('Experience', ExperienceSection()),
-    _Step('Education', EducationSection()),
-    _Step('Skills', SkillsSection()),
-    _Step('Projects', ProjectsSection()),
-    _Step('Certifications', CertificationsSection()),
-    _Step('Languages', LanguagesSection()),
-    _Step('References', ReferencesSection()),
+    _Step('Basics', null, BasicsSection()),
+    _Step('Summary', CvSectionKind.summary, SummarySection()),
+    _Step('Experience', CvSectionKind.experience, ExperienceSection()),
+    _Step('Education', CvSectionKind.education, EducationSection()),
+    _Step('Skills', CvSectionKind.skills, SkillsSection()),
+    _Step('Projects', CvSectionKind.projects, ProjectsSection()),
+    _Step('Certifications', CvSectionKind.certifications,
+        CertificationsSection()),
+    _Step('Languages', CvSectionKind.languages, LanguagesSection()),
+    _Step('References', CvSectionKind.references, ReferencesSection()),
   ];
 
   @override
@@ -92,6 +95,7 @@ class _CvEditorScreenState extends State<CvEditorScreen> {
           _Stepper(
             steps: _steps,
             current: _step,
+            doc: doc,
             onTap: (int i) => setState(() => _step = i),
           ),
           const Divider(height: 1),
@@ -166,8 +170,11 @@ class _CvEditorScreenState extends State<CvEditorScreen> {
 }
 
 class _Step {
-  const _Step(this.title, this.child);
+  const _Step(this.title, this.kind, this.child);
   final String title;
+
+  /// Null for the Basics step (basics has its own completeness rule).
+  final CvSectionKind? kind;
   final Widget child;
 }
 
@@ -175,27 +182,40 @@ class _Stepper extends StatelessWidget {
   const _Stepper({
     required this.steps,
     required this.current,
+    required this.doc,
     required this.onTap,
   });
   final List<_Step> steps;
   final int current;
+  final CvDocument doc;
   final ValueChanged<int> onTap;
 
   @override
   Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
     return SizedBox(
-      height: 48,
+      height: 56,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         itemCount: steps.length,
         separatorBuilder: (BuildContext _, int __) =>
             const SizedBox(width: 6),
         itemBuilder: (BuildContext context, int i) {
           final bool selected = i == current;
+          final _Step s = steps[i];
+          final double score = s.kind == null
+              ? CvCompleteness.basicsScore(doc)
+              : CvCompleteness.scoreFor(s.kind!, doc);
           return ChoiceChip(
-            label: Text('${i + 1}. ${steps[i].title}'),
+            label: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                _Dot(score: score, selected: selected),
+                const SizedBox(width: 6),
+                Text('${i + 1}. ${s.title}'),
+              ],
+            ),
             selected: selected,
             onSelected: (_) => onTap(i),
             selectedColor: cs.primary,
@@ -205,6 +225,27 @@ class _Stepper extends StatelessWidget {
           );
         },
       ),
+    );
+  }
+}
+
+class _Dot extends StatelessWidget {
+  const _Dot({required this.score, required this.selected});
+  final double score;
+  final bool selected;
+
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme cs = Theme.of(context).colorScheme;
+    final Color color = score >= 1
+        ? (selected ? cs.onPrimary : Colors.green.shade600)
+        : score > 0
+            ? (selected ? cs.onPrimary.withOpacity(0.6) : cs.tertiary)
+            : (selected ? cs.onPrimary.withOpacity(0.4) : cs.outlineVariant);
+    return Container(
+      width: 8,
+      height: 8,
+      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
     );
   }
 }

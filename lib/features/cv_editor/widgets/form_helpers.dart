@@ -12,6 +12,7 @@ class LabeledTextField extends StatefulWidget {
     required this.onChanged,
     this.hint,
     this.helper,
+    this.errorText,
     this.multiline = false,
     this.aiKind,
     this.country,
@@ -23,6 +24,7 @@ class LabeledTextField extends StatefulWidget {
   final ValueChanged<String> onChanged;
   final String? hint;
   final String? helper;
+  final String? errorText;
   final bool multiline;
   final AiFieldKind? aiKind;
   final CountryConfig? country;
@@ -67,6 +69,7 @@ class _LabeledTextFieldState extends State<LabeledTextField> {
           labelText: widget.label,
           hintText: widget.hint,
           helperText: widget.helper,
+          errorText: widget.errorText,
           suffixIcon: (widget.aiKind != null && widget.country != null)
               ? IconButton(
                   tooltip: 'Improve with AI',

@@ -87,6 +87,15 @@ class CvEditorNotifier extends ChangeNotifier {
     _update(_doc!.copyWith(experience: list));
   }
 
+  void reorderExperience(int oldIndex, int newIndex) {
+    final List<WorkExperience> list = <WorkExperience>[...?_doc?.experience];
+    if (oldIndex < 0 || oldIndex >= list.length) return;
+    final int target = newIndex > oldIndex ? newIndex - 1 : newIndex;
+    final WorkExperience item = list.removeAt(oldIndex);
+    list.insert(target.clamp(0, list.length), item);
+    _update(_doc!.copyWith(experience: list));
+  }
+
   void addEducation() => _update(_doc!.copyWith(
       education: <EducationEntry>[...?_doc?.education, EducationEntry()]));
   void updateEducation(int i, EducationEntry e) {
@@ -98,6 +107,15 @@ class CvEditorNotifier extends ChangeNotifier {
   void removeEducation(int i) {
     final List<EducationEntry> list = <EducationEntry>[...?_doc?.education]
       ..removeAt(i);
+    _update(_doc!.copyWith(education: list));
+  }
+
+  void reorderEducation(int oldIndex, int newIndex) {
+    final List<EducationEntry> list = <EducationEntry>[...?_doc?.education];
+    if (oldIndex < 0 || oldIndex >= list.length) return;
+    final int target = newIndex > oldIndex ? newIndex - 1 : newIndex;
+    final EducationEntry item = list.removeAt(oldIndex);
+    list.insert(target.clamp(0, list.length), item);
     _update(_doc!.copyWith(education: list));
   }
 
