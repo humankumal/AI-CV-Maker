@@ -107,7 +107,7 @@ class _AiRewriteSheetState extends State<AiRewriteSheet> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: cs.errorContainer.withValues(alpha: 0.5),
+                    color: cs.errorContainer.withOpacity(0.5),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(_error!,

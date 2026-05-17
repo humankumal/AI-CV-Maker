@@ -1,3 +1,4 @@
+import 'package:ai_cv_maker/models/country_config.dart';
 import 'package:ai_cv_maker/models/template_config.dart';
 import 'package:ai_cv_maker/services/country_catalog.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -7,25 +8,24 @@ void main() {
     test('exposes exactly 5 countries', () {
       expect(CountryCatalog.countries.length, 5);
       expect(
-        CountryCatalog.countries.map((dynamic c) => c.code as String).toSet(),
+        CountryCatalog.countries.map((CountryConfig c) => c.code).toSet(),
         <String>{'GB', 'US', 'CA', 'AU', 'IN'},
       );
     });
 
     test('exposes exactly 50 templates (10 per country)', () {
       expect(CountryCatalog.templates.length, 50);
-      for (final dynamic c in CountryCatalog.countries) {
-        final List<TemplateConfig> list =
-            CountryCatalog.templatesFor(c.code as String);
+      for (final CountryConfig c in CountryCatalog.countries) {
+        final List<TemplateConfig> list = CountryCatalog.templatesFor(c.code);
         expect(list.length, 10,
             reason: 'Country ${c.code} should have 10 templates');
       }
     });
 
     test('every archetype is represented per country', () {
-      for (final dynamic c in CountryCatalog.countries) {
+      for (final CountryConfig c in CountryCatalog.countries) {
         final Set<TemplateArchetype> archetypes = CountryCatalog
-            .templatesFor(c.code as String)
+            .templatesFor(c.code)
             .map((TemplateConfig t) => t.archetype)
             .toSet();
         expect(archetypes, TemplateArchetype.values.toSet());

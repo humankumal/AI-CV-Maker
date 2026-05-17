@@ -8,7 +8,7 @@ class LoadingOverlay extends StatelessWidget {
   Widget build(BuildContext context) {
     final ColorScheme cs = Theme.of(context).colorScheme;
     return ColoredBox(
-      color: cs.scrim.withValues(alpha: 0.2),
+      color: cs.scrim.withOpacity(0.2),
       child: Center(
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -17,7 +17,7 @@ class LoadingOverlay extends StatelessWidget {
             borderRadius: BorderRadius.circular(14),
             boxShadow: <BoxShadow>[
               BoxShadow(
-                color: cs.shadow.withValues(alpha: 0.1),
+                color: cs.shadow.withOpacity(0.1),
                 blurRadius: 14,
               ),
             ],

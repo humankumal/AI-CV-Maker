@@ -22,7 +22,7 @@ class AiCvMakerApp extends StatelessWidget {
     final CvRepository repo = CvRepository.create();
 
     return MultiProvider(
-      providers: <SingleChildWidget>[
+      providers: [
         ChangeNotifierProvider<SettingsNotifier>(
           create: (_) => SettingsNotifier(
               settingsService: settingsService, aiService: ai)

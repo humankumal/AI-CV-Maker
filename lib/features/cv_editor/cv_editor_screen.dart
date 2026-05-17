@@ -127,7 +127,7 @@ class _CvEditorScreenState extends State<CvEditorScreen> {
                   icon: Icons.visibility_outlined,
                   onPressed: () async {
                     await ed.saveNow();
-                    if (!mounted) return;
+                    if (!context.mounted) return;
                     context.push('/preview/${doc.id}');
                   },
                 ),
@@ -159,7 +159,7 @@ class _CvEditorScreenState extends State<CvEditorScreen> {
         ],
       ),
     );
-    if (next != null && next.isNotEmpty && mounted) {
+    if (next != null && next.isNotEmpty && context.mounted) {
       context.read<CvEditorNotifier>().setName(next);
     }
   }

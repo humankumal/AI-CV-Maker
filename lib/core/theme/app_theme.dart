@@ -35,13 +35,13 @@ class AppTheme {
         centerTitle: false,
         titleTextStyle: text.titleLarge?.copyWith(color: scheme.onSurface),
       ),
-      cardTheme: CardThemeData(
+      cardTheme: CardTheme(
         elevation: 0,
         clipBehavior: Clip.antiAlias,
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: BorderSide(color: scheme.outlineVariant.withValues(alpha: 0.6)),
+          side: BorderSide(color: scheme.outlineVariant.withOpacity(0.6)),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
@@ -86,7 +86,7 @@ class AppTheme {
         ),
       ),
       dividerTheme: DividerThemeData(
-        color: scheme.outlineVariant.withValues(alpha: 0.6),
+        color: scheme.outlineVariant.withOpacity(0.6),
         thickness: 0.6,
         space: 1,
       ),

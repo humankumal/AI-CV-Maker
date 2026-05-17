@@ -12,6 +12,8 @@ int _argb(Color c) {
   return c.value;
 }
 
+enum _FaceKind { regular, bold, italic }
+
 /// Renders a CV document to a PDF using the same TemplateConfig that drives
 /// the live preview.
 class PdfExportService {
@@ -48,64 +50,71 @@ class PdfExportService {
   }
 
   Future<pw.ThemeData> _loadTheme(TemplateConfig template) async {
-    final pw.Font base =
-        await _fontFor(template.fontFamily, weight: FontWeight.normal);
-    final pw.Font bold =
-        await _fontFor(template.fontFamily, weight: FontWeight.bold);
+    final pw.Font base = await _fontFor(template.fontFamily, _FaceKind.regular);
+    final pw.Font bold = await _fontFor(template.fontFamily, _FaceKind.bold);
     final pw.Font italic =
-        await _fontFor(template.fontFamily, weight: FontWeight.italic);
+        await _fontFor(template.fontFamily, _FaceKind.italic);
     return pw.ThemeData.withFont(base: base, bold: bold, italic: italic);
   }
 
-  Future<pw.Font> _fontFor(String family, {required FontWeight weight}) async {
-    // PdfGoogleFonts has named helpers for popular families; we fall back to
-    // Inter for anything not in the helper set. This keeps the PDF readable
-    // and dependency-free of asset bundling.
+  Future<pw.Font> _fontFor(String family, _FaceKind face) async {
     try {
       switch (family) {
         case 'Inter':
-          return weight == FontWeight.bold
-              ? await PdfGoogleFonts.interBold()
-              : weight == FontWeight.italic
-                  ? await PdfGoogleFonts.interItalic()
-                  : await PdfGoogleFonts.interRegular();
+          switch (face) {
+            case _FaceKind.bold:
+              return PdfGoogleFonts.interBold();
+            case _FaceKind.italic:
+              return PdfGoogleFonts.interItalic();
+            case _FaceKind.regular:
+              return PdfGoogleFonts.interRegular();
+          }
         case 'Roboto':
-          return weight == FontWeight.bold
-              ? await PdfGoogleFonts.robotoBold()
-              : weight == FontWeight.italic
-                  ? await PdfGoogleFonts.robotoItalic()
-                  : await PdfGoogleFonts.robotoRegular();
+          switch (face) {
+            case _FaceKind.bold:
+              return PdfGoogleFonts.robotoBold();
+            case _FaceKind.italic:
+              return PdfGoogleFonts.robotoItalic();
+            case _FaceKind.regular:
+              return PdfGoogleFonts.robotoRegular();
+          }
         case 'Lora':
-          return weight == FontWeight.bold
-              ? await PdfGoogleFonts.loraBold()
-              : weight == FontWeight.italic
-                  ? await PdfGoogleFonts.loraItalic()
-                  : await PdfGoogleFonts.loraRegular();
+          switch (face) {
+            case _FaceKind.bold:
+              return PdfGoogleFonts.loraBold();
+            case _FaceKind.italic:
+              return PdfGoogleFonts.loraItalic();
+            case _FaceKind.regular:
+              return PdfGoogleFonts.loraRegular();
+          }
         case 'Merriweather':
-          return weight == FontWeight.bold
-              ? await PdfGoogleFonts.merriweatherBold()
-              : weight == FontWeight.italic
-                  ? await PdfGoogleFonts.merriweatherItalic()
-                  : await PdfGoogleFonts.merriweatherRegular();
+          switch (face) {
+            case _FaceKind.bold:
+              return PdfGoogleFonts.merriweatherBold();
+            case _FaceKind.italic:
+              return PdfGoogleFonts.merriweatherItalic();
+            case _FaceKind.regular:
+              return PdfGoogleFonts.merriweatherRegular();
+          }
         case 'JetBrains Mono':
-          return weight == FontWeight.bold
-              ? await PdfGoogleFonts.jetBrainsMonoBold()
-              : await PdfGoogleFonts.jetBrainsMonoRegular();
+          return face == _FaceKind.bold
+              ? PdfGoogleFonts.jetBrainsMonoBold()
+              : PdfGoogleFonts.jetBrainsMonoRegular();
         case 'Source Sans 3':
-          return weight == FontWeight.bold
-              ? await PdfGoogleFonts.sourceSans3Bold()
-              : await PdfGoogleFonts.sourceSans3Regular();
+          return face == _FaceKind.bold
+              ? PdfGoogleFonts.sourceSans3Bold()
+              : PdfGoogleFonts.sourceSans3Regular();
         case 'Manrope':
-          return weight == FontWeight.bold
-              ? await PdfGoogleFonts.manropeBold()
-              : await PdfGoogleFonts.manropeRegular();
+          return face == _FaceKind.bold
+              ? PdfGoogleFonts.manropeBold()
+              : PdfGoogleFonts.manropeRegular();
       }
     } catch (_) {
-      // Some helpers may not exist in older versions — fall back to default.
+      // Helper not available in current pdf package version — fall through.
     }
-    return weight == FontWeight.bold
-        ? await PdfGoogleFonts.interBold()
-        : await PdfGoogleFonts.interRegular();
+    return face == _FaceKind.bold
+        ? PdfGoogleFonts.interBold()
+        : PdfGoogleFonts.interRegular();
   }
 
   PdfPageFormat _pageFormat(CountryConfig country) =>
@@ -207,9 +216,8 @@ class PdfExportService {
         .where((String s) => s.isNotEmpty)
         .toList();
     if (parts.isEmpty) return '?';
-    if (parts.length == 1) return parts.first.characters.first.toUpperCase();
-    return (parts.first.characters.first + parts.last.characters.first)
-        .toUpperCase();
+    if (parts.length == 1) return parts.first[0].toUpperCase();
+    return (parts.first[0] + parts.last[0]).toUpperCase();
   }
 
   // ---------------------------------------------------------------------------

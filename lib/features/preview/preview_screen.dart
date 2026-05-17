@@ -76,7 +76,7 @@ class _PreviewScreenState extends State<PreviewScreen> {
                     constraints: const BoxConstraints(maxWidth: 700),
                     child: Material(
                       elevation: 6,
-                      shadowColor: Colors.black.withValues(alpha: 0.15),
+                      shadowColor: Colors.black.withOpacity(0.15),
                       borderRadius: BorderRadius.circular(8),
                       child: CvRenderer(
                         document: doc,

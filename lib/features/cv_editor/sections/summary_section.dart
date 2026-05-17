@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../models/cv_document.dart';
 import '../../../services/ai_service.dart';
 import '../../../services/country_catalog.dart';
 import '../../../state/cv_editor_notifier.dart';
@@ -12,7 +13,7 @@ class SummarySection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final CvEditorNotifier ed = context.watch<CvEditorNotifier>();
-    final dynamic doc = ed.document!;
+    final CvDocument doc = ed.document!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
@@ -28,11 +29,12 @@ class SummarySection extends StatelessWidget {
         ),
         LabeledTextField(
           label: 'Summary',
-          value: doc.profile.summary as String,
+          value: doc.profile.summary,
           multiline: true,
           aiKind: AiFieldKind.summary,
           country: CountryCatalog.countryFor(doc.countryCode),
-          onChanged: (String v) => ed.setProfile(doc.profile.copyWith(summary: v)),
+          onChanged: (String v) =>
+              ed.setProfile(doc.profile.copyWith(summary: v)),
           hint:
               'Write a draft in your own words. Tap the spark icon to polish it.',
         ),

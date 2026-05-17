@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../models/skill_item.dart';
 import '../../../state/cv_editor_notifier.dart';
 import '../widgets/form_helpers.dart';
 
@@ -23,7 +24,7 @@ class _SkillsSectionState extends State<SkillsSection> {
   @override
   Widget build(BuildContext context) {
     final CvEditorNotifier ed = context.watch<CvEditorNotifier>();
-    final dynamic items = ed.document!.skills;
+    final List<SkillItem> items = ed.document!.skills;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
@@ -66,7 +67,7 @@ class _SkillsSectionState extends State<SkillsSection> {
           children: <Widget>[
             for (int i = 0; i < items.length; i++)
               InputChip(
-                label: Text(items[i].name as String),
+                label: Text(items[i].name),
                 onDeleted: () => ed.removeSkill(i),
               ),
           ],

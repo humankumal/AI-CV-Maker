@@ -290,7 +290,7 @@ class _Header extends StatelessWidget {
         return Container(
           width: double.infinity,
           padding: EdgeInsets.all(10 * scale),
-          color: template.accentColor.withValues(alpha: 0.08),
+          color: template.accentColor.withOpacity(0.08),
           child: body(CrossAxisAlignment.start),
         );
       case HeaderStyle.twoLineRule:
