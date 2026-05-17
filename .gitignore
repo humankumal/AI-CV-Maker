@@ -1,0 +1,36 @@
+# Flutter / Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+.flutter/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# Generated
+**/generated_plugin_registrant.dart
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+
+# Platform — kept out so users run `flutter create .` locally to regenerate
+# (Comment these out if you commit platform code.)
+# android/
+# ios/
+# web/
+# linux/
+# macos/
+# windows/
+
+# Misc
+*.log
+.DS_Store
+Thumbs.db
+coverage/
