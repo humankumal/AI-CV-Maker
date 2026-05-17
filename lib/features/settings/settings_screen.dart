@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/constants.dart';
 import '../../state/settings_notifier.dart';
@@ -59,14 +61,41 @@ class SettingsScreen extends StatelessWidget {
           ),
           _Section(
             title: 'About',
-            child: ListTile(
-              title: const Text(AppConstants.appName),
-              subtitle: const Text('Version 1.0.0'),
+            child: Column(
+              children: <Widget>[
+                ListTile(
+                  leading: const Icon(Icons.info_outline),
+                  title: const Text(AppConstants.appName),
+                  subtitle: FutureBuilder<PackageInfo>(
+                    future: PackageInfo.fromPlatform(),
+                    builder: (BuildContext ctx,
+                        AsyncSnapshot<PackageInfo> snap) {
+                      final PackageInfo? p = snap.data;
+                      return Text(p == null
+                          ? 'Version 1.0.0'
+                          : 'Version ${p.version}+${p.buildNumber}');
+                    },
+                  ),
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: const Icon(Icons.privacy_tip_outlined),
+                  title: const Text('Privacy policy'),
+                  trailing: const Icon(Icons.open_in_new, size: 18),
+                  onTap: () => _openUrl(
+                      'https://github.com/humankumal/ai-cv-maker/blob/main/PRIVACY.md'),
+                ),
+              ],
             ),
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _openUrl(String url) async {
+    final Uri uri = Uri.parse(url);
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
   }
 
   Future<void> _editApiKeyDialog(

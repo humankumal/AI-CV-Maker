@@ -36,11 +36,43 @@ dependencies:
   # Utilities
   uuid: ^4.5.1
   intl: ^0.19.0
+  url_launcher: ^6.3.1
+  package_info_plus: ^8.1.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.14.1
+  flutter_native_splash: ^2.4.1
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/icon/
+
+# `dart run flutter_launcher_icons` regenerates platform-specific icons.
+flutter_launcher_icons:
+  image_path: "assets/icon/app_icon.png"
+  android: "ic_launcher"
+  ios: true
+  remove_alpha_ios: true
+  adaptive_icon_background: "#1F2A44"
+  adaptive_icon_foreground: "assets/icon/app_icon_fg.png"
+  web:
+    generate: true
+    image_path: "assets/icon/app_icon.png"
+    background_color: "#1F2A44"
+    theme_color: "#1F2A44"
+
+# `dart run flutter_native_splash:create` regenerates the splash screen.
+flutter_native_splash:
+  color: "#FFFFFF"
+  color_dark: "#0F1422"
+  image: "assets/icon/splash_logo.png"
+  image_dark: "assets/icon/splash_logo.png"
+  android_12:
+    color: "#FFFFFF"
+    color_dark: "#0F1422"
+    image: "assets/icon/splash_logo.png"
+  fullscreen: false
