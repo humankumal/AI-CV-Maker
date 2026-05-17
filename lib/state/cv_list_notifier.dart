@@ -1,12 +1,12 @@
 import 'package:flutter/foundation.dart';
 
 import '../models/cv_document.dart';
-import '../services/cv_repository.dart';
+import '../services/sync_orchestrator.dart';
 
 class CvListNotifier extends ChangeNotifier {
-  CvListNotifier(this._repo);
+  CvListNotifier(this._sync);
 
-  final CvRepository _repo;
+  final SyncOrchestrator _sync;
   List<CvDocument> _cvs = <CvDocument>[];
   bool _loading = false;
 
@@ -17,13 +17,13 @@ class CvListNotifier extends ChangeNotifier {
   Future<void> load() async {
     _loading = true;
     notifyListeners();
-    _cvs = await _repo.loadAll();
+    _cvs = await _sync.loadAll();
     _loading = false;
     notifyListeners();
   }
 
   Future<void> upsert(CvDocument doc) async {
-    await _repo.save(doc);
+    await _sync.upsert(doc);
     final int i = _cvs.indexWhere((CvDocument c) => c.id == doc.id);
     if (i >= 0) {
       _cvs[i] = doc;
@@ -62,7 +62,7 @@ class CvListNotifier extends ChangeNotifier {
   }
 
   Future<void> remove(String id) async {
-    await _repo.delete(id);
+    await _sync.delete(id);
     _cvs.removeWhere((CvDocument c) => c.id == id);
     notifyListeners();
   }

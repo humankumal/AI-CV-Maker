@@ -6,11 +6,14 @@ import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'services/cv_repository.dart';
 import 'services/gemini_ai_service.dart';
+import 'services/remote_cv_repository.dart';
 import 'services/settings_service.dart';
+import 'services/sync_orchestrator.dart';
 import 'state/ai_notifier.dart';
 import 'state/cv_editor_notifier.dart';
 import 'state/cv_list_notifier.dart';
 import 'state/settings_notifier.dart';
+import 'state/sync_notifier.dart';
 
 class AiCvMakerApp extends StatelessWidget {
   const AiCvMakerApp({super.key});
@@ -19,7 +22,12 @@ class AiCvMakerApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final GeminiAiService ai = GeminiAiService();
     final SettingsService settingsService = SettingsService();
-    final CvRepository repo = CvRepository.create();
+    final CvRepository localRepo = CvRepository.create();
+    // Swap with FirebaseRemoteRepository() once flutterfire is configured;
+    // see lib/services/firebase_remote_repository.dart for steps.
+    final RemoteCvRepository remoteRepo = InMemoryRemoteRepository();
+    final SyncOrchestrator sync =
+        SyncOrchestrator(local: localRepo, remote: remoteRepo);
 
     return MultiProvider(
       providers: [
@@ -29,7 +37,7 @@ class AiCvMakerApp extends StatelessWidget {
             ..load(),
         ),
         ChangeNotifierProvider<CvListNotifier>(
-          create: (_) => CvListNotifier(repo)..load(),
+          create: (_) => CvListNotifier(sync)..load(),
         ),
         ChangeNotifierProxyProvider<CvListNotifier, CvEditorNotifier>(
           create: (BuildContext ctx) =>
@@ -38,6 +46,12 @@ class AiCvMakerApp extends StatelessWidget {
               old ?? CvEditorNotifier(list),
         ),
         ChangeNotifierProvider<AiNotifier>(create: (_) => AiNotifier(ai)),
+        ChangeNotifierProxyProvider<CvListNotifier, SyncNotifier>(
+          create: (BuildContext ctx) => SyncNotifier(
+              orchestrator: sync, list: ctx.read<CvListNotifier>()),
+          update: (BuildContext _, CvListNotifier list, SyncNotifier? old) =>
+              old ?? SyncNotifier(orchestrator: sync, list: list),
+        ),
       ],
       child: Consumer<SettingsNotifier>(
         builder: (BuildContext _, SettingsNotifier settings, __) {

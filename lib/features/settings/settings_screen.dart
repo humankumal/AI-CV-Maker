@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/constants.dart';
 import '../../state/settings_notifier.dart';
+import '../../state/sync_notifier.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -58,6 +60,10 @@ class SettingsScreen extends StatelessWidget {
               trailing: const Icon(Icons.chevron_right),
               onTap: () => _editApiKeyDialog(context, s),
             ),
+          ),
+          _Section(
+            title: 'Account & cloud sync',
+            child: _SyncTile(),
           ),
           _Section(
             title: 'About',
@@ -159,6 +165,70 @@ class SettingsScreen extends StatelessWidget {
     } else if (next.isNotEmpty) {
       await s.setGeminiKey(next);
     }
+  }
+}
+
+class _SyncTile extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final SyncNotifier sync = context.watch<SyncNotifier>();
+    final DateFormat fmt = DateFormat('d MMM, HH:mm');
+    final String lastSync = sync.lastSyncAt == null
+        ? 'Never'
+        : fmt.format(sync.lastSyncAt!);
+    if (!sync.isSignedIn) {
+      return ListTile(
+        leading: const Icon(Icons.cloud_off_outlined),
+        title: const Text('Cloud sync is off'),
+        subtitle: const Text(
+            'Your CVs stay on this device. Sign in to back them up and sync.'),
+        trailing: sync.syncing
+            ? const SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(strokeWidth: 2))
+            : FilledButton.tonal(
+                onPressed: sync.signInAndSync,
+                child: const Text('Sign in'),
+              ),
+      );
+    }
+    return Column(
+      children: <Widget>[
+        ListTile(
+          leading: const Icon(Icons.cloud_done_outlined),
+          title: const Text('Cloud sync is on'),
+          subtitle: Text('User: ${sync.userId}\nLast sync: $lastSync'),
+          isThreeLine: true,
+        ),
+        const Divider(height: 1),
+        ListTile(
+          leading: const Icon(Icons.sync),
+          title: const Text('Sync now'),
+          trailing: sync.syncing
+              ? const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2))
+              : const Icon(Icons.chevron_right),
+          onTap: sync.syncing ? null : sync.syncNow,
+        ),
+        const Divider(height: 1),
+        ListTile(
+          leading: const Icon(Icons.logout),
+          title: const Text('Sign out'),
+          onTap: sync.signOut,
+        ),
+        if (sync.error != null)
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Text(
+              sync.error!,
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            ),
+          ),
+      ],
+    );
   }
 }
 
