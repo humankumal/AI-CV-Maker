@@ -1,59 +1,42 @@
 import 'package:flutter/material.dart';
 
-import '../services/gemini_ai_service.dart';
 import '../services/settings_service.dart';
 
 class SettingsNotifier extends ChangeNotifier {
-  SettingsNotifier({
-    required this.settingsService,
-    required this.aiService,
-  });
+  SettingsNotifier(this._service);
 
-  final SettingsService settingsService;
-  final GeminiAiService aiService;
+  final SettingsService _service;
 
   ThemeMode _themeMode = ThemeMode.system;
-  String? _defaultCountry;
-  String? _geminiKey;
-  bool _loaded = false;
+  double _fontSize = 15.0;
+  String _fontFamily = 'Inter';
 
   ThemeMode get themeMode => _themeMode;
-  String? get defaultCountry => _defaultCountry;
-  bool get hasGeminiKey => _geminiKey != null && _geminiKey!.isNotEmpty;
-  String? get geminiKeyMasked {
-    if (_geminiKey == null || _geminiKey!.isEmpty) return null;
-    final String k = _geminiKey!;
-    if (k.length <= 6) return '••••';
-    return '${k.substring(0, 3)}…${k.substring(k.length - 4)}';
-  }
-
-  bool get loaded => _loaded;
+  double get fontSize => _fontSize;
+  String get fontFamily => _fontFamily;
 
   Future<void> load() async {
-    _themeMode = await settingsService.readThemeMode();
-    _defaultCountry = await settingsService.readDefaultCountry();
-    _geminiKey = await settingsService.readGeminiKey();
-    aiService.apiKey = _geminiKey;
-    _loaded = true;
+    _themeMode = await _service.readThemeMode();
+    _fontSize = await _service.readFontSize();
+    _fontFamily = await _service.readFontFamily();
     notifyListeners();
   }
 
   Future<void> setThemeMode(ThemeMode mode) async {
     _themeMode = mode;
     notifyListeners();
-    await settingsService.writeThemeMode(mode);
+    await _service.writeThemeMode(mode);
   }
 
-  Future<void> setDefaultCountry(String code) async {
-    _defaultCountry = code;
+  Future<void> setFontSize(double size) async {
+    _fontSize = size;
     notifyListeners();
-    await settingsService.writeDefaultCountry(code);
+    await _service.writeFontSize(size);
   }
 
-  Future<void> setGeminiKey(String? key) async {
-    _geminiKey = key;
-    aiService.apiKey = key;
+  Future<void> setFontFamily(String family) async {
+    _fontFamily = family;
     notifyListeners();
-    await settingsService.writeGeminiKey(key);
+    await _service.writeFontFamily(family);
   }
 }

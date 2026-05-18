@@ -1,18 +1,16 @@
 class AppConstants {
   AppConstants._();
 
-  static const String appName = 'AI CV Maker';
-  static const String tagline = 'Build a polished CV in minutes.';
+  static const String appName = 'Document Reader 2026';
+  static const String tagline = 'Open any file, instantly.';
 
-  // Storage
-  static const String cvsFolderName = 'cvs';
-  static const String settingsBox = 'settings';
-
-  // Secure storage keys
-  static const String geminiApiKeyKey = 'gemini_api_key';
-
-  // Shared prefs keys
+  static const String recentFilesKey = 'recent_files_v1';
+  static const String proStatusKey = 'pro_status_v1';
   static const String themeModeKey = 'theme_mode';
-  static const String defaultCountryKey = 'default_country';
-  static const String onboardingSeenKey = 'onboarding_seen';
+  static const String textFontSizeKey = 'text_viewer_font_size';
+  static const String textFontFamilyKey = 'text_viewer_font_family';
+
+  static const String proProductId = 'document_reader_pro_lifetime';
+
+  static const int freeRecentFilesLimit = 5;
 }

@@ -1,84 +1,46 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/constants.dart';
 
-/// Owns persisted settings: theme mode, default country, and the Gemini key.
 class SettingsService {
-  SettingsService({FlutterSecureStorage? secureStorage})
-      : _secureStorage = secureStorage;
-
-  final FlutterSecureStorage? _secureStorage;
-
-  FlutterSecureStorage get _store =>
-      _secureStorage ?? const FlutterSecureStorage();
-
   Future<ThemeMode> readThemeMode() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final String raw =
-        prefs.getString(AppConstants.themeModeKey) ?? ThemeMode.system.name;
-    return ThemeMode.values.firstWhere(
-      (ThemeMode m) => m.name == raw,
-      orElse: () => ThemeMode.system,
-    );
+    final String? value = prefs.getString(AppConstants.themeModeKey);
+    return switch (value) {
+      'light' => ThemeMode.light,
+      'dark' => ThemeMode.dark,
+      _ => ThemeMode.system,
+    };
   }
 
   Future<void> writeThemeMode(ThemeMode mode) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString(AppConstants.themeModeKey, mode.name);
+    final String value = switch (mode) {
+      ThemeMode.light => 'light',
+      ThemeMode.dark => 'dark',
+      _ => 'system',
+    };
+    await prefs.setString(AppConstants.themeModeKey, value);
   }
 
-  Future<String?> readDefaultCountry() async {
+  Future<double> readFontSize() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString(AppConstants.defaultCountryKey);
+    return prefs.getDouble(AppConstants.textFontSizeKey) ?? 15.0;
   }
 
-  Future<void> writeDefaultCountry(String code) async {
+  Future<void> writeFontSize(double size) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString(AppConstants.defaultCountryKey, code);
+    await prefs.setDouble(AppConstants.textFontSizeKey, size);
   }
 
-  Future<bool> readOnboardingSeen() async {
+  Future<String> readFontFamily() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(AppConstants.onboardingSeenKey) ?? false;
+    return prefs.getString(AppConstants.textFontFamilyKey) ?? 'Inter';
   }
 
-  Future<void> writeOnboardingSeen() async {
+  Future<void> writeFontFamily(String family) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(AppConstants.onboardingSeenKey, true);
-  }
-
-  /// On web, `flutter_secure_storage` falls back to localStorage automatically.
-  Future<String?> readGeminiKey() async {
-    try {
-      return await _store.read(key: AppConstants.geminiApiKeyKey);
-    } catch (_) {
-      if (kIsWeb) {
-        final SharedPreferences prefs = await SharedPreferences.getInstance();
-        return prefs.getString(AppConstants.geminiApiKeyKey);
-      }
-      return null;
-    }
-  }
-
-  Future<void> writeGeminiKey(String? key) async {
-    try {
-      if (key == null || key.isEmpty) {
-        await _store.delete(key: AppConstants.geminiApiKeyKey);
-      } else {
-        await _store.write(key: AppConstants.geminiApiKeyKey, value: key);
-      }
-    } catch (_) {
-      if (kIsWeb) {
-        final SharedPreferences prefs = await SharedPreferences.getInstance();
-        if (key == null || key.isEmpty) {
-          await prefs.remove(AppConstants.geminiApiKeyKey);
-        } else {
-          await prefs.setString(AppConstants.geminiApiKeyKey, key);
-        }
-      }
-    }
+    await prefs.setString(AppConstants.textFontFamilyKey, family);
   }
 }
