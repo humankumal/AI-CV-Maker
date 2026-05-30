@@ -4,10 +4,12 @@ import 'package:provider/provider.dart';
 import 'core/constants.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
+import 'services/bookmark_service.dart';
 import 'services/file_service.dart';
 import 'services/iap_service.dart';
 import 'services/recent_files_service.dart';
 import 'services/settings_service.dart';
+import 'state/bookmarks_notifier.dart';
 import 'state/pro_notifier.dart';
 import 'state/recent_files_notifier.dart';
 import 'state/settings_notifier.dart';
@@ -34,6 +36,9 @@ class DocumentReaderApp extends StatelessWidget {
         ),
         ChangeNotifierProvider<RecentFilesNotifier>(
           create: (_) => RecentFilesNotifier(recentService, iap)..load(),
+        ),
+        ChangeNotifierProvider<BookmarksNotifier>(
+          create: (_) => BookmarksNotifier(BookmarkService())..load(),
         ),
         Provider<FileService>.value(value: fileService),
       ],

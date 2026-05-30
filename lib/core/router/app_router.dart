@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/bookmarks/bookmarks_screen.dart';
 import '../../features/home/home_screen.dart';
 import '../../features/pro_upgrade/pro_screen.dart';
 import '../../features/settings/settings_screen.dart';
@@ -31,6 +32,10 @@ class AppRouter {
       GoRoute(
         path: '/pro',
         builder: (_, __) => const ProUpgradeScreen(),
+      ),
+      GoRoute(
+        path: '/bookmarks',
+        builder: (_, __) => const BookmarksScreen(),
       ),
     ],
   );

@@ -22,6 +22,11 @@ class HomeScreen extends StatelessWidget {
         ),
         actions: [
           IconButton(
+            icon: const Icon(Icons.bookmarks_outlined),
+            tooltip: 'Bookmarks',
+            onPressed: () => context.push('/bookmarks'),
+          ),
+          IconButton(
             icon: const Icon(Icons.settings_outlined),
             tooltip: 'Settings',
             onPressed: () => context.push('/settings'),

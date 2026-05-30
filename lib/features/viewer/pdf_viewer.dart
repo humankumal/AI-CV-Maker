@@ -3,6 +3,7 @@ import 'package:pdfx/pdfx.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/document_file.dart';
+import '../../state/bookmarks_notifier.dart';
 import '../../state/pro_notifier.dart';
 
 class PdfViewer extends StatefulWidget {
@@ -42,6 +43,21 @@ class _PdfViewerState extends State<PdfViewer> {
           overflow: TextOverflow.ellipsis,
         ),
         actions: [
+          Consumer<BookmarksNotifier>(
+            builder: (context, bookmarks, _) {
+              final bool marked =
+                  bookmarks.isBookmarked(widget.file.path, _currentPage);
+              return IconButton(
+                icon: Icon(marked ? Icons.bookmark : Icons.bookmark_outline),
+                tooltip: marked ? 'Remove bookmark' : 'Bookmark page',
+                onPressed: () => bookmarks.toggle(
+                  filePath: widget.file.path,
+                  fileName: widget.file.name,
+                  page: _currentPage,
+                ),
+              );
+            },
+          ),
           if (_totalPages > 0)
             Container(
               margin: const EdgeInsets.only(right: 8),
